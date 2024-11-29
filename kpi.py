@@ -1,5 +1,9 @@
-import pandas as pd 
-import streamlit as st 
+import pandas as pd
+import numpy as np
+from collections import Counter
+import streamlit as st
+import seaborn as sns
+import matplotlib.pyplot as plt
 import plotly.express as px
 from st_aggrid import AgGrid
 from sklearn.model_selection import train_test_split
@@ -20,34 +24,35 @@ pages = ["projet", "Exploration des données", "Analyse de données", "Modélisa
 
 page = st.sidebar.radio("Pages", pages, label_visibility='hidden')
 
-# projet
-if page == pages[0] : 
-    
+if page == pages[0] :
+
     st.write("### Objectif")
-    
+
     st.write("Réaliser une analyse approfondie de la base de données pour identifier des tendances et caractéristiques spécifiques.")
     st.write("Cette analyse devrait inclure : l’identification des acteurs les plus présents et les périodes associées, l’évolution de la durée moyenne des films au fil des années, la comparaison entre les acteurs présents au cinéma et dans les séries, l’âge moyen des acteurs, ainsi que les films les mieux notés et les caractéristiques qu’ils partagent.")
-    
+
     st.write("Sur la base des informations récoltées, vous pourrez affiner votre programmation en vous spécialisant par exemple sur les films des années 90 ou les genres d’action et d’aventure, afin de mieux répondre aux attentes du public identifié lors de l’étude de marché")
-    
+
     st.write("### Besoin client")
-    
+
     st.write("Obtenir quelques statistiques sur les films (type, durée), acteurs (nombre de films, type de films) et d’autres.")
 
-# Exploration des données    
+# Exploration des données
 elif page == pages[1]:
     st.write("### Exploration des données")
-    
+
     st.dataframe(df, height=800)
-    
+
     st.write("Dimensions du dataframe :")
-    
+
     st.write(df.shape)
-    
-    if st.checkbox("Afficher les valeurs manquantes") : 
+
+    if st.checkbox("Afficher les valeurs manquantes") :
         st.dataframe(df.isna().sum())
 
-# Analyse de données        
+    if st.checkbox("Afficher les doublons") :
+        st.write(df.duplicated().sum())
+
 elif page == pages[2]:
     st.write("### Analyse de données")
 
@@ -57,19 +62,19 @@ elif page == pages[2]:
     fig_scatter_matrix = px.scatter_matrix(df,
                                         dimensions=['startYear', 'duration', 'averageRating', 'numVotes'],
                                         title="Matrice de dispersion des variables numériques",
-                                        color='averageRating', 
+                                        color='averageRating',
                                         labels={'startYear': 'Année', 'duration': 'Durée', 'averageRating': 'Note moyenne', 'numVotes': 'Nombre de votes'},
-                                        color_continuous_scale='Viridis')  
+                                        color_continuous_scale='Viridis')
     fig_scatter_matrix.update_layout(
-        title_font_size=26,  
-        xaxis_title_font_size=18, 
-        yaxis_title_font_size=18, 
+        title_font_size=26,
+        xaxis_title_font_size=18,
+        yaxis_title_font_size=18,
         height=800
-    )  
+    )
     fig_scatter_matrix.update_traces(diagonal_visible=False,  showupperhalf=False)
     st.plotly_chart(fig_scatter_matrix, use_container_width=True)
-    
-    
+
+
 
     # calcul nombre de films par genre
     genre_counts = df['genres'].str.split(',').explode().value_counts()
@@ -82,20 +87,20 @@ elif page == pages[2]:
                             x='Count',
                             y='Genre',
                             title='Nombre de films par genre',
-                            color='Count', 
+                            color='Count',
                             color_continuous_scale='greens',
                             labels={'Genre': 'Genre', 'Count': 'Nombre de films'},
-                            text='Count')  
+                            text='Count')
     fig_genre_count.update_layout(
-        title_font_size=26,  
-        xaxis_title_font_size=18, 
-        yaxis_title_font_size=18, 
+        title_font_size=26,
+        xaxis_title_font_size=18,
+        yaxis_title_font_size=18,
         height=800
-    )  
+    )
     st.plotly_chart(fig_genre_count, use_container_width=True)
-    
-    
-    # calcul moyenne du nombre de votes par genre 
+
+
+    # calcul moyenne du nombre de votes par genre
     df_genres = df[['genres', 'numVotes']].dropna()
     df_genres = df_genres.assign(genres=df_genres['genres'].str.split(',')).explode('genres')
     genre_avg_votes = df_genres.groupby('genres')['numVotes'].mean().reset_index()
@@ -112,38 +117,38 @@ elif page == pages[2]:
                                     color='numVotes',
                                     color_continuous_scale='oranges',
                                     labels={'Genre': 'Genre', 'numVotes': 'Moyenne des votes'}
-                                    ) 
+                                    )
     fig_avg_votes_per_genre.update_layout(
         xaxis_tickangle=-45,
-        title_font_size=26,  
-        xaxis_title_font_size=18, 
-        yaxis_title_font_size=18, 
+        title_font_size=26,
+        xaxis_title_font_size=18,
+        yaxis_title_font_size=18,
         height=800
-    )  
-    st.plotly_chart(fig_avg_votes_per_genre, use_container_width=True)           
-    
+    )
+    st.plotly_chart(fig_avg_votes_per_genre, use_container_width=True)
+
     # Calcul nombre de films par année
     film_count_per_year = df['startYear'].value_counts().sort_index()
     df_nb_film_per_year = film_count_per_year.reset_index()
     df_nb_film_per_year.columns = ['startYear', 'nombre_de_films']
-  
-    #barplot du nombre de films par année    
-    fig_nb_film_per_year = px.bar(df_nb_film_per_year, 
-              x='startYear', 
-              y='nombre_de_films', 
+
+    #barplot du nombre de films par année
+    fig_nb_film_per_year = px.bar(df_nb_film_per_year,
+              x='startYear',
+              y='nombre_de_films',
               title='Nombre de films par année',
-              color='nombre_de_films',  
-              color_continuous_scale='Blues', 
-              labels={'startYear': 'Année', 'nombre_de_films': 'Nombre de films'}) 
+              color='nombre_de_films',
+              color_continuous_scale='Blues',
+              labels={'startYear': 'Année', 'nombre_de_films': 'Nombre de films'})
 
     fig_nb_film_per_year.update_layout(
-        title_font_size=26,  
-        xaxis_title_font_size=18, 
-        yaxis_title_font_size=18, 
+        title_font_size=26,
+        xaxis_title_font_size=18,
+        yaxis_title_font_size=18,
         height=800
-    )    
+    )
     st.plotly_chart(fig_nb_film_per_year, use_container_width=True)
-    
+
     # liste d'acteurs par film et apparitions
     df_actors = df[['actors_names', 'startYear']].dropna()
     df_actors = df_actors.assign(actors_names=df_actors['actors_names'].str.split(','))
@@ -160,18 +165,18 @@ elif page == pages[2]:
     actor_activity_df = actor_activity_df.sort_values(by='Apparitions', ascending=False).head(50)
     actor_activity_df = actor_activity_df[['Acteur', 'Apparitions', 'startYear']]
     actor_activity_df.rename(columns={'startYear': 'Années'}, inplace=True)
-    
+
     st.divider()
-    
+
     # Tableau des acteurs les plus présents
     st.write("### Top 50 des acteurs les plus présents et leurs périodes d'activité")
     AgGrid(actor_activity_df)
-    
+
     ############# PAS DE WIDTH 100% POSSIBLE #############
     # st.dataframe(actor_activity_df)
     ######################################################
-    
-    
+
+
     #  barplot des acteurs les plus présents
     fig_actor_activity = px.bar(actor_activity_df,
                                 x='Acteur',
@@ -182,13 +187,110 @@ elif page == pages[2]:
                                 labels={'Acteur': 'Acteur', 'Apparitions': 'Nombre de films'})
     fig_actor_activity.update_layout(
         xaxis_tickangle=-45,
-        title_font_size=26,  
-        xaxis_title_font_size=18, 
-        yaxis_title_font_size=18, 
+        title_font_size=26,
+        xaxis_title_font_size=18,
+        yaxis_title_font_size=18,
         height=800
-    )  
+    )
     st.plotly_chart(fig_actor_activity, use_container_width=True)
- 
-# Modélisation 
+
+# Modélisation
+    fig_actor_activity.update_layout(xaxis_tickangle=-45, width=1000, height=600)
+    st.plotly_chart(fig_actor_activity)
+
+
+    #################RUBY################################
+    # Compter les genres
+    genre_counts = Counter()
+    # Boucle pour compter les genres
+    for genre_list in df['genres']:
+        genres = genre_list.split(',')  # Séparer les genres
+        genre_counts.update(genres)  # Mettre à jour le compteur
+    # Convertir le compteur en DataFrame
+    df_genre_counts = pd.DataFrame(genre_counts.items(), columns=['Genre', 'Nombre'])
+    df_genre_counts = df_genre_counts.sort_values(by='Nombre', ascending=True)
+
+    # Créer l'histogramme
+    fig2 = plt.figure(figsize=(20, 6))
+    sns.barplot(x='Nombre', y='Genre', data=df_genre_counts, color='green')
+    plt.title('Les genres de films les plus fréquents', fontsize=16)
+    plt.xlabel('Nombre de films', fontsize=14)
+    plt.ylabel('Genre', fontsize=14)
+    st.pyplot(fig2)
+
+
+
+    fig22 = px.bar(df_genre_counts,
+                   x='Nombre',
+                   y='Genre',
+                   title='Les genres de films les plus fréquents',
+                   color='Nombre',
+                   color_continuous_scale='greens',
+                   labels={'Nombre': 'Nombre de films', 'Genre': 'Genre'}
+                   )
+    st.plotly_chart(fig22)
+
+
+
+
+    # Compter le nombre de films par année
+    film_count_per_year = df['startYear'].value_counts().sort_index()
+    # Conversion en DataFrame
+    df_nb_film_per_year = film_count_per_year.reset_index()
+    # Renommer les colonnes
+    df_nb_film_per_year.columns = ['startYear', 'nombre_de_films']
+    # Créer l'histogramme
+    fig3 = plt.figure(figsize=(30, 10))
+    sns.barplot(x='startYear', y='nombre_de_films', data=df_nb_film_per_year, color='blue')
+    plt.title('Nombre de films par année', fontsize=26)
+    plt.xlabel('Année', fontsize=18)
+    plt.ylabel('Nombre de films', fontsize=18)
+    st.pyplot(fig3)
+
+
+
+    fig32 = px.bar(df_nb_film_per_year,
+              x='startYear',
+              y='nombre_de_films',
+              title='Nombre de films par année',
+              color='nombre_de_films',
+              color_continuous_scale='Blues',
+              labels={'startYear': 'Année', 'nombre_de_films': 'Nombre de films'})
+
+    fig32.update_layout(
+        width=900,
+        height=300,
+        title_font_size=26,
+        xaxis_title_font_size=18,
+        yaxis_title_font_size=18,
+    )
+    st.plotly_chart(fig32)
+    #####################################################
+
+     #####################CAMILLE################################
+
+    # Rating VS year chart:
+    df_nbr_votes_by_year = df[["startYear", "numVotes"]]
+    df_nbr_votes_by_year = df_nbr_votes_by_year.groupby("startYear", as_index=False)[["numVotes"]].mean()
+    # round the mean values
+    df_nbr_votes_by_year["numVotes_moyenne"] = df_nbr_votes_by_year["numVotes"].apply(lambda x : round(x, 2))
+    # generate a bar chart
+    fig_rating_vs_years = px.bar(df_nbr_votes_by_year, x="startYear", y="numVotes_moyenne", color_continuous_scale='Blues', color="numVotes_moyenne")
+    st.write("### Graph évolution des votes par années")
+    st.plotly_chart(fig_rating_vs_years)
+
+    # 10 most populaire movies in 2023
+    st.write("### Les films les plus populaires en 2023")
+
+     # custom data frame
+    df_data_2023 = df[df["startYear"] == 2023.0]
+    df_rating = df_data_2023[["title", "numVotes", "averageRating"]]
+    sorted_df = df_rating.sort_values(by=["numVotes"], ascending=False)
+    # take the top 10 movies
+    resultat = sorted_df[0:10]
+    # rename columns and return dataframe
+    df_populare_movies = resultat.rename(columns={"title": "Titre", "numVotes": "Votes", "averageRating": "Note moyenne"})
+    st.dataframe(df_populare_movies)
+
 elif page == pages[3]:
     st.write("### Modélisation")
