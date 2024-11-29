@@ -199,8 +199,6 @@ elif page == pages[2]:
     st.plotly_chart(fig_actor_activity)
 
 
-
-
     #################RUBY################################
     # Compter les genres
     genre_counts = Counter()
