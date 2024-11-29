@@ -269,6 +269,30 @@ elif page == pages[2]:
     st.plotly_chart(fig32)
     #####################################################
 
+     #####################CAMILLE################################
+
+    # Rating VS year chart:
+    df_nbr_votes_by_year = df[["startYear", "numVotes"]]
+    df_nbr_votes_by_year = df_nbr_votes_by_year.groupby("startYear", as_index=False)[["numVotes"]].mean()
+    # round the mean values
+    df_nbr_votes_by_year["numVotes_moyenne"] = df_nbr_votes_by_year["numVotes"].apply(lambda x : round(x, 2))
+    # generate a bar chart
+    fig_rating_vs_years = px.bar(df_nbr_votes_by_year, x="startYear", y="numVotes_moyenne", color_continuous_scale='Blues', color="numVotes_moyenne")
+    st.write("### Graph évolution des votes par années")
+    st.plotly_chart(fig_rating_vs_years)
+
+    # 10 most populaire movies in 2023
+    st.write("### Les films les plus populaires en 2023")
+
+     # custom data frame
+    df_data_2023 = df[df["startYear"] == 2023.0]
+    df_rating = df_data_2023[["title", "numVotes", "averageRating"]]
+    sorted_df = df_rating.sort_values(by=["numVotes"], ascending=False)
+    # take the top 10 movies
+    resultat = sorted_df[0:10]
+    # rename columns and return dataframe
+    df_populare_movies = resultat.rename(columns={"title": "Titre", "numVotes": "Votes", "averageRating": "Note moyenne"})
+    st.dataframe(df_populare_movies)
 
 elif page == pages[3]:
     st.write("### Modélisation")
