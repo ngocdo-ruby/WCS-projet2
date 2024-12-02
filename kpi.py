@@ -12,6 +12,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import r2_score
+from IPython.display import HTML
+
 
 # prend toute la largeur de la page
 st.set_page_config(layout="wide")
@@ -290,7 +292,8 @@ elif page == pages[2]:
     resultat = sorted_df[0:10]
     # rename columns and return dataframe
     df_populare_movies = resultat.rename(columns={"title": "Titre", "numVotes": "Votes", "averageRating": "Note moyenne"})
-    st.dataframe(df_populare_movies)
+    st.dataframe(df_populare_movies, hide_index=True)
+
 
 elif page == pages[3]:
     st.write("### Modélisation")
