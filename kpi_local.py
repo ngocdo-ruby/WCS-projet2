@@ -25,8 +25,6 @@ st.set_page_config(layout="wide")
 
 df = pd.read_parquet('imdb.parquet')
 
-API_KEY = '60c5ca9b75de2d2e768380e9a5bfd88c'
-
 # Initialisation des hyperparametres pour la modelisation
 if 'hyperparametres' not in st.session_state:
     st.session_state.hyperparametres = {
@@ -340,52 +338,6 @@ elif page == pages[4]:
             
         return neighbors_df
       
-    def get_tmdb_data(imdb_id):
-        # L'URL de base pour l'API TMDb
-        url = f'https://api.themoviedb.org/3/find/{imdb_id}?language=fr-FR'
-        params = {
-            'api_key': API_KEY,
-            'external_source': 'imdb_id'  # Indique que nous recherchons avec l'IMDb ID
-        }        
-        # Envoi de la requête
-        response = requests.get(url, params=params)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if 'movie_results' in data and len(data['movie_results']) > 0:
-                movie = data['movie_results'][0]  # On prend le premier résultat (si disponible)
-                return movie
-        return None
-    
-    def get_tmdb_video(tmdb_id):
-        url = f'https://api.themoviedb.org/3/movie/{tmdb_id}/videos?language=fr-FR'         
-        params = {
-            'api_key': API_KEY
-        }        
-        response = requests.get(url, params=params)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if 'results' in data and len(data['results']) > 0:
-                video = data['results'][0] 
-                return video
-        return None
-    
-    def get_tmdb_actors(tmdb_id):
-        url = f'https://api.themoviedb.org/3/movie/{tmdb_id}/credits?language=fr-FR'        
-        params = {
-            'api_key': API_KEY 
-        }        
-        response = requests.get(url, params=params)
-        
-        if response.status_code == 200:
-            data = response.json()
-            #recupere les 5 premiers acteurs
-            if 'cast' in data and len(data['cast']) > 0:
-                actors = data['cast'][:5] 
-                return actors
-        return None
-      
     # Saisie du film avec recherche systematique a chauqe lettre tappée
     film = st_keyup("Saisissez un film", debounce=500, key="2")
 
@@ -404,11 +356,7 @@ elif page == pages[4]:
             selected_row = results[results['title'].str.lower() == selected_movie.lower()].iloc[0]
 
             "---"
-            st.header(f"Film sélectionné : {selected_row['title']}")            
-
-            # Récupération des données TMDb pour le film sélectionné
-            tmdb = get_tmdb_data(selected_row['imdb_id'])         
-            
+            st.header(f"Film sélectionné : {selected_row['title']}")
             # Affichage des informations détaillées du film
             with st.container():
                 st.markdown(f"""
@@ -419,31 +367,11 @@ elif page == pages[4]:
                                 <div class="titre">{selected_row['title']} ({selected_row['year']})</div>
                                 <div class="genre">Genres: {selected_row['genres']}</div>
                                 <div class="rating">⭐ {selected_row['averageRating']}/10</div>
-                                <div class="description">{tmdb.get('overview', None)}</div>
+                                <div class="description">{selected_row['overview']}</div>
                             </div>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
-                st.write("")
-                
-            #affichage des acteurs
-            tmdb_actors = get_tmdb_actors(tmdb['id'])
-            st.header("Acteurs principaux")
-            # Créer un container pour le bandeau
-            with st.container():
-                cols = st.columns(len(tmdb_actors))  # une colonne par acteur
-                for col, actor in zip(cols, tmdb_actors):
-                    with col:
-                        st.image(f"https://media.themoviedb.org/t/p/w138_and_h175_face{actor['profile_path']}", caption=actor['name'], use_container_width='auto')
-            st.write("")
-            
-            # video si elle existe             
-            vid = get_tmdb_video(tmdb['id'])
-            if vid and vid['site'] == 'YouTube':
-                col1,col2=st.columns([2,2])
-                with col1:           
-                    st.video(f"https://www.youtube.com/watch?v={vid['key']}")
-                
             "---"
             # Affichage de la liste des voisins
             st.header(f"Les {st.session_state.hyperparametres['n_voisins'] } voisins :")
