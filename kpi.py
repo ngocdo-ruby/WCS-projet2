@@ -36,7 +36,7 @@ if 'hyperparametres' not in st.session_state:
     
 st.sidebar.title("Sommaire")
 
-pages = ["projet", "Exploration des données", "Analyse de données", "Dashboard", "Modélisation", "Application de recommandations"]
+pages = ["Projet", "Exploration des données", "Analyse de données", "Dashboard", "Modélisation", "Application de recommandations"]
 
 # Initialise st.session_state.page si ce n'est pas déjà fait
 if 'page' not in st.session_state:
