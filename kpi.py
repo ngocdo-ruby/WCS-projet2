@@ -246,7 +246,7 @@ elif page == pages[2]:
 elif page == pages[3]:
     st.header("Modélisation")    
 
-    # Standardise les données numériques
+    # Standardise les données numériques 
     scaler = StandardScaler()
     num_cols = df.select_dtypes(include=['number']).columns
     if 'df_scaled' not in st.session_state:
