@@ -34,7 +34,7 @@ if 'hyperparametres' not in st.session_state:
     
 st.sidebar.title("Sommaire")
 
-pages = ["projet", "Exploration des données", "Analyse de données", "Modélisation", "Application de recommandations"]
+pages = ["projet", "Exploration des données", "Analyse de données", "Dashboard", "Modélisation", "Application de recommandations"]
 
 # Initialise st.session_state.page si ce n'est pas déjà fait
 if 'page' not in st.session_state:
@@ -242,8 +242,104 @@ elif page == pages[2]:
     df_populare_movies = resultat.rename(columns={"title": "Titre", "numVotes": "Votes", "averageRating": "Note moyenne"})
     st.dataframe(df_populare_movies, hide_index=True)
 
-# Modélisation  
+# Dashboard
 elif page == pages[3]:
+    st.header("Dashboard")
+
+    # Fonction pour afficher des KPI cards  
+    def display_kpi(df):  
+        col1, col2, col3, col4, col5 = st.columns(5)  
+        with col1:  
+            st.metric("Films total", f"{len(df):,}")  
+        with col2:  
+            st.metric("Note moyenne", f"{df['averageRating'].mean():.2f}")  
+        with col3:  
+            st.metric("Votes totaux", f"{int(df['numVotes'].sum()):,}")  
+        with col4:  
+            st.metric("Année la plus ancienne", int(df['year'].min()))
+        with col5:
+            st.metric("Année la plus récente", int(df['year'].max()))
+
+      
+    st.title("📊 Dashboard")  
+    display_kpi(df)  # Afficher les KPI  
+
+    st.divider()  
+
+    # Tabs pour organiser les graphiques  
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Films par genre", "Votes par genre", "Films par année", "Analyse des acteurs", "Tendances temporelles"])  
+
+    # Nombre de films par genre  
+    with tab1:  
+        genre_counts = df['genres'].str.split(',').explode().value_counts().reset_index()  
+        genre_counts.columns = ['Genre', 'Nombre de films']  
+        fig_genre = px.bar(genre_counts, x='Nombre de films', y='Genre', orientation='h',  
+                            title='Nombre de films par genre', color='Nombre de films',  
+                            color_continuous_scale='oranges')  
+        st.plotly_chart(fig_genre, use_container_width=True)  
+
+    # Moyenne de nombre de votes par genre  
+    with tab2:  
+        df_genres = df[['genres', 'numVotes']].dropna()  
+        df_genres = df_genres.assign(genres=df_genres['genres'].str.split(',')).explode('genres')  
+        genre_avg_votes = df_genres.groupby('genres')['numVotes'].mean().reset_index()  
+        genre_avg_votes = genre_avg_votes.sort_values(by='numVotes', ascending=False)  
+        fig_avg_votes = px.bar(genre_avg_votes, x='genres', y='numVotes',  
+                                title='Moyenne de nombre de votes par genre', color='numVotes',  
+                                color_continuous_scale='oranges')  
+        st.plotly_chart(fig_avg_votes, use_container_width=True)  
+
+    # Nombre de films par année  
+    with tab3:  
+        films_per_year = df['year'].value_counts().reset_index()  
+        films_per_year.columns = ['Année', 'Nombre de films']  
+        films_per_year = films_per_year.sort_values(by='Année')  
+        fig_films_year = px.bar(films_per_year, x='Année', y='Nombre de films',  
+                                title='Nombre de films par année', color='Nombre de films',  
+                                color_continuous_scale='oranges')  
+        st.plotly_chart(fig_films_year, use_container_width=True)  
+
+    # Analyse des acteurs  
+    with tab4:  
+        st.title("👨‍🎬 Analyse des acteurs")  
+        df_actors = df[['actors_names', 'year']].dropna()  
+        df_actors = df_actors.assign(actors_names=df_actors['actors_names'].str.split(','))  
+        df_actors = df_actors.explode('actors_names').dropna()  
+        df_actors['actors_names'] = df_actors['actors_names'].str.strip()  
+
+        actor_counts = df_actors['actors_names'].value_counts().reset_index()  
+        actor_counts.columns = ['Acteur', 'Nombre de films']  
+        actor_counts = actor_counts.head(50)  
+
+        st.subheader("Top 50 des acteurs les plus présents")  
+        fig_actors = px.bar(actor_counts, x='Nombre de films', y='Acteur', orientation='h', 
+                            color='Nombre de films',  
+                            color_continuous_scale='oranges')  
+        st.plotly_chart(fig_actors, use_container_width=True)  
+
+    # Tendances temporelles  
+    with tab5:
+        st.title("⏰ Tendances Temporelles")  
+
+        st.subheader("Evolution des votes par année")
+        df_votes = df.groupby('year')['numVotes'].mean().reset_index()  
+        df_votes.columns = ['Année', 'Votes moyens']  
+        fig_votes = px.line(df_votes, x='Année', y='Votes moyens', markers=True)  
+        st.plotly_chart(fig_votes, use_container_width=True)  
+
+        st.subheader("Top 10 des films les plus populaires en 2023")  
+        df_2023 = df[df['year'] == 2023].sort_values(by='numVotes', ascending=False).head(10)  
+        df_2023['numVotes'] = df_2023['numVotes'].apply(lambda x: f"{x:,}") 
+        df_2023['averageRating'] = df_2023['averageRating'].apply(lambda x: f"{x:.1f}")  
+        st.table(df_2023[['title', 'numVotes', 'averageRating']].rename(columns={  
+            'title': 'Titre',  
+            'numVotes': 'Votes',  
+            'averageRating': 'Note moyenne'  
+        }))  
+
+
+# Modélisation  
+elif page == pages[4]:
     st.header("Modélisation")    
 
     # Standardise les données numériques
@@ -279,7 +375,7 @@ elif page == pages[3]:
     st.session_state.df_scaled_session = df_scaled
 
 # Application de recommandations  
-elif page == pages[4]:
+elif page == pages[5]:
     st.header("Application de recommandations")
     
     # Accéde au modèle NearestNeighbors depuis session_state
