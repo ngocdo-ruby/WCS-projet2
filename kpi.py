@@ -331,7 +331,7 @@ elif page == pages[3]:
 
         st.subheader("Top 10 des films les plus populaires en 2023")  
         df_2023 = df[df['year'] == 2023].sort_values(by='numVotes', ascending=False).head(10)  
-        df_2023['numVotes'] = df_2023['numVotes'].apply(lambda x: f"{x:,}") 
+        df_2023['numVotes'] = df_2023['numVotes'].apply(lambda x: f"{int(x):,}") 
         df_2023['averageRating'] = df_2023['averageRating'].apply(lambda x: f"{x:.1f}")  
         st.table(df_2023[['title', 'numVotes', 'averageRating']].rename(columns={  
             'title': 'Titre',  
