@@ -34,7 +34,8 @@ def get_movies(actor_id):
         list_movies[movie["original_title"]] = year
     return list_movies
 
-def list_movie_posters(actor_id):
+def list_movie_posters(actor_id: int) -> list:
+    # renvoie une liste de liens pour les affiches des films
     url = MAIN_URL + "/person/" + str(actor_id) + "/movie_credits?language=fr"
     params = { 'api_key': API_KEY }
     movies = requests.get(url, params=params).json()['crew']
