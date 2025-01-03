@@ -234,7 +234,7 @@ elif page == pages[1]:
                 f"""
                 <div class="movie-container">
                     <div style="display: flex; align-items: center;">
-                        <img src="{selected_row['poster_path']}" alt="Poster" style="width: 300px; margin-right: 20px;" class="poster">
+                        <img src="https://image.tmdb.org/t/p/w500/{tmdb.get('poster_path', None)}" alt="Poster" style="width: 300px; margin-right: 20px;" class="poster">
                         <div>
                             <h2>{selected_row['title']}<span style='color:gray; font-style:italic;'> ({selected_row['year']})</span></h2>
                             <div style='color:gray; font-style:italic;'>{get_tmdb_tagline(tmdb['id'])}</div>
@@ -258,13 +258,13 @@ elif page == pages[1]:
                     f"""
                     <style>
                         .trailer-header {{
-                            font-size: 28px; /* Taille plus grande pour le header */
+                            font-size: 28px; 
                             font-weight: bold;
-                            color: #FF5722; /* Couleur orange vif */
-                            margin-top: 20px; /* Espacement au-dessus */
-                            border-bottom: 3px solid #FF5722; /* Soulignement épais */
-                            padding-bottom: 10px; /* Espacement entre le texte et la bordure */
-                            margin-bottom: 20px; /* Espacement en-dessous */
+                            color: #FF5722; 
+                            margin-top: 20px; 
+                            border-bottom: 3px solid #FF5722; 
+                            padding-bottom: 10px; 
+                            margin-bottom: 20px; 
                         }}
                     </style>
                     <div class="trailer-header">🎬 Bande annonce</div>
@@ -278,13 +278,13 @@ elif page == pages[1]:
                     f"""
                     <style>
                         .trailer-header {{
-                            font-size: 28px; /* Taille plus grande pour le header */
+                            font-size: 28px; 
                             font-weight: bold;
-                            color: #FF5722; /* Couleur orange vif */
-                            margin-top: 20px; /* Espacement au-dessus */
-                            border-bottom: 3px solid #FF5722; /* Soulignement épais */
-                            padding-bottom: 10px; /* Espacement entre le texte et la bordure */
-                            margin-bottom: 20px; /* Espacement en-dessous */
+                            color: #FF5722; 
+                            margin-top: 20px; 
+                            border-bottom: 3px solid #FF5722; 
+                            padding-bottom: 10px; 
+                            margin-bottom: 20px; 
                         }}
                         .no-trailer {{
                             font-size: 18px;
@@ -304,13 +304,13 @@ elif page == pages[1]:
                 f"""
                 <style>
                     .main-actors-title {{
-                        font-size: 28px; /* Taille plus grande pour le header */
+                        font-size: 28px; 
                         font-weight: bold;
                         color: #4CAF50; /* Couleur verte */
-                        margin-top: 20px; /* Espacement au-dessus */
-                        border-bottom: 3px solid #4CAF50; /* Soulignement épais */
-                        padding-bottom: 10px; /* Espacement entre le texte et la bordure */
-                        margin-bottom: 20px; /* Espacement en-dessous */
+                        margin-top: 20px; 
+                        border-bottom: 3px solid #4CAF50; 
+                        padding-bottom: 10px; 
+                        margin-bottom: 20px; 
                     }}
                 </style>
                 <div class="main-actors-title">🎭 Acteurs principaux</div>
@@ -344,10 +344,10 @@ elif page == pages[1]:
                     font-size: 28px; /* Taille plus grande que Films associés */
                     font-weight: bold;
                     color: #2196F3; /* Couleur bleue */
-                    margin-top: 20px; /* Espacement au-dessus */
-                    border-bottom: 3px solid #2196F3; /* Soulignement épais */
-                    padding-bottom: 10px; /* Espacement entre le texte et la bordure */
-                    margin-bottom: 20px; /* Espacement en-dessous */
+                    margin-top: 20px; 
+                    border-bottom: 3px solid #2196F3; 
+                    padding-bottom: 10px; 
+                    margin-bottom: 20px; 
                 }}
             </style>
             <div class="recommendations-title">🔍 Recommandations associées :</div>
@@ -376,7 +376,7 @@ elif page == pages[1]:
         cv = CountVectorizer(stop_words="english")
         cv_matrix = cv.fit_transform(df["overview"])
         knn_model = NearestNeighbors(
-            metric="cosine", algorithm="brute", n_jobs=-1, n_neighbors=4
+            metric="cosine", algorithm="auto", n_jobs=-1, n_neighbors=4
         ).fit(cv_matrix)
 
         _, indices = knn_model.kneighbors(cv_matrix[index_imdb].reshape(1, -1))

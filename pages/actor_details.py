@@ -206,8 +206,8 @@ def actor_details():
                 .section-title {
                     font-size: 24px;
                     font-weight: bold;
-                    color: #4CAF50; /* Couleur verte */
-                    border-bottom: 2px solid #4CAF50; /* Soulignement */
+                    color: #4CAF50; 
+                    border-bottom: 2px solid #4CAF50; 
                     padding-bottom: 5px;
                     margin-bottom: 15px;
                 }
