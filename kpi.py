@@ -43,15 +43,15 @@ if page == pages[0]:
     def display_kpi(df):
         col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
-            st.metric("Films total", f"{len(df):,}")
+            st.metric("Films totaux", f"{len(df):,}")
         with col2:
-            st.metric("Note moyenne", f"{df['averageRating'].mean():.2f}")
-        with col3:
-            st.metric("Votes totaux", f"{int(df['numVotes'].sum()):,}")
-        with col4:
             st.metric("Année la plus ancienne", int(df['year'].min()))
-        with col5:
+        with col3:
             st.metric("Année la plus récente", int(df['year'].max()))
+        with col4:
+            st.metric("Note moyenne", f"{df['averageRating'].mean():.2f}")
+        with col5:
+            st.metric("Votes totaux", f"{int(df['numVotes'].sum()):,}")
 
 
     st.title("📊 Dashboard")
@@ -60,41 +60,48 @@ if page == pages[0]:
     st.divider()
 
     # Tabs pour organiser les graphiques
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Films par genre", "Votes par genre", "Films par année", "Analyse des acteurs", "Tendances temporelles"])
-
-    # Nombre de films par genre
-    with tab1:
-        genre_counts = df['genres'].str.split(',').explode().value_counts().reset_index()
-        genre_counts.columns = ['Genre', 'Nombre de films']
-        fig_genre = px.bar(genre_counts, x='Nombre de films', y='Genre', orientation='h',
-                            title='Nombre de films par genre', color='Nombre de films',
-                            color_continuous_scale='oranges')
-        st.plotly_chart(fig_genre, use_container_width=True)
+    tab1, tab2, tab3, tab4 = st.tabs(["Votes par genre", "Analyse des films", "Analyse des acteurs", "Tendances temporelles"])
 
     # Moyenne de nombre de votes par genre
-    with tab2:
+    with tab1:
+        st.title("🗳️ Moyenne de nombre de votes par genre")
         df_genres = df[['genres', 'numVotes']].dropna()
         df_genres = df_genres.assign(genres=df_genres['genres'].str.split(',')).explode('genres')
         genre_avg_votes = df_genres.groupby('genres')['numVotes'].mean().reset_index()
-        genre_avg_votes = genre_avg_votes.sort_values(by='numVotes', ascending=False)
-        fig_avg_votes = px.bar(genre_avg_votes, x='genres', y='numVotes',
-                                title='Moyenne de nombre de votes par genre', color='numVotes',
+        genre_avg_votes = genre_avg_votes.sort_values(by='numVotes', ascending=True)
+        genre_avg_votes.columns = ['Genre', 'Nombre de votes']
+        fig_avg_votes = px.bar(genre_avg_votes, x='Nombre de votes', y='Genre', orientation='h',
+                                color='Nombre de votes',
                                 color_continuous_scale='oranges')
         st.plotly_chart(fig_avg_votes, use_container_width=True)
 
-    # Nombre de films par année
-    with tab3:
+    # Analyse des films
+    with tab2:
+        st.title("🎥 Analyse des films")
+        
+        st.subheader("Nombre de films par année")
         films_per_year = df['year'].value_counts().reset_index()
         films_per_year.columns = ['Année', 'Nombre de films']
         films_per_year = films_per_year.sort_values(by='Année')
-        fig_films_year = px.bar(films_per_year, x='Année', y='Nombre de films',
-                                title='Nombre de films par année', color='Nombre de films',
+        fig_films_year = px.bar(films_per_year, x='Année', y='Nombre de films', color='Nombre de films',
                                 color_continuous_scale='oranges')
         st.plotly_chart(fig_films_year, use_container_width=True)
 
+        st.subheader("Nombre de films par genre")
+        genre_counts = df['genres'].str.split(',').explode().value_counts().reset_index()
+        genre_counts.columns = ['Genre', 'Nombre de films']
+        genre_counts = genre_counts.sort_values(by='Nombre de films', ascending=True)
+        fig_genre = px.bar(genre_counts, x='Nombre de films', y='Genre', orientation='h',
+                            color='Nombre de films',
+                            color_continuous_scale='oranges')
+        st.plotly_chart(fig_genre, use_container_width=True)
+
+
     # Analyse des acteurs
-    with tab4:
-        st.title("👨‍🎬 Analyse des acteurs")
+    with tab3:
+        st.title("👨 Analyse des acteurs")
+
+        st.subheader("Top 20 des acteurs les plus présents")
         df_actors = df[['actors_names', 'year']].dropna()
         df_actors = df_actors.assign(actors_names=df_actors['actors_names'].str.split(','))
         df_actors = df_actors.explode('actors_names').dropna()
@@ -102,22 +109,23 @@ if page == pages[0]:
 
         actor_counts = df_actors['actors_names'].value_counts().reset_index()
         actor_counts.columns = ['Acteur', 'Nombre de films']
-        actor_counts = actor_counts.head(50)
-
-        st.subheader("Top 50 des acteurs les plus présents")
+        actor_counts = actor_counts.head(20)
+        actor_counts = actor_counts.sort_values(by='Nombre de films', ascending=True)
+        
         fig_actors = px.bar(actor_counts, x='Nombre de films', y='Acteur', orientation='h',
                             color='Nombre de films',
                             color_continuous_scale='oranges')
         st.plotly_chart(fig_actors, use_container_width=True)
 
     # Tendances temporelles
-    with tab5:
+    with tab4:
         st.title("⏰ Tendances Temporelles")
 
         st.subheader("Evolution des votes par année")
         df_votes = df.groupby('year')['numVotes'].mean().reset_index()
         df_votes.columns = ['Année', 'Votes moyens']
         fig_votes = px.line(df_votes, x='Année', y='Votes moyens', markers=True)
+        fig_votes.update_traces(line=dict(color='orange'))
         st.plotly_chart(fig_votes, use_container_width=True)
 
         st.subheader("Top 10 des films les plus populaires en 2023")
@@ -132,25 +140,6 @@ if page == pages[0]:
     
 elif page == pages[1]:
     st.header("Application de recommandations")
-    
-    # image de fond
-    image_url = "https://img.pikbest.com/backgrounds/20220119/film-festival-black-style-background_6234454.jpg!w700wp"
-
-    # CSS de l'image de fond
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background-image: url({image_url});
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
 
     # Fonction pour rechercher des films
     def search_movies(query, df):
@@ -253,7 +242,7 @@ elif page == pages[1]:
                 f"""
                 <div class="movie-container">
                     <div style="display: flex; align-items: center;">
-                        <img src="https://image.tmdb.org/t/p/w500/{tmdb.get('poster_path', None)}" alt="Poster" style="width: 300px; margin-right: 20px;" class="poster">
+                        <img src="{selected_row['poster_path']}" alt="Poster" style="width: 300px; margin-right: 20px;" class="poster">
                         <div>
                             <h2>{selected_row['title']}<span style='color:gray; font-style:italic;'> ({selected_row['year']})</span></h2>
                             <div style='color:gray; font-style:italic;'>{get_tmdb_tagline(tmdb['id'])}</div>
@@ -277,13 +266,13 @@ elif page == pages[1]:
                     f"""
                     <style>
                         .trailer-header {{
-                            font-size: 28px; 
+                            font-size: 28px; /* Taille plus grande pour le header */
                             font-weight: bold;
-                            color: #FF5722; 
-                            margin-top: 20px; 
-                            border-bottom: 3px solid #FF5722; 
-                            padding-bottom: 10px; 
-                            margin-bottom: 20px; 
+                            color: #FF5722; /* Couleur orange vif */
+                            margin-top: 20px; /* Espacement au-dessus */
+                            border-bottom: 3px solid #FF5722; /* Soulignement épais */
+                            padding-bottom: 10px; /* Espacement entre le texte et la bordure */
+                            margin-bottom: 20px; /* Espacement en-dessous */
                         }}
                     </style>
                     <div class="trailer-header">🎬 Bande annonce</div>
@@ -297,13 +286,13 @@ elif page == pages[1]:
                     f"""
                     <style>
                         .trailer-header {{
-                            font-size: 28px; 
+                            font-size: 28px; /* Taille plus grande pour le header */
                             font-weight: bold;
-                            color: #FF5722; 
-                            margin-top: 20px; 
-                            border-bottom: 3px solid #FF5722; 
-                            padding-bottom: 10px; 
-                            margin-bottom: 20px; 
+                            color: #FF5722; /* Couleur orange vif */
+                            margin-top: 20px; /* Espacement au-dessus */
+                            border-bottom: 3px solid #FF5722; /* Soulignement épais */
+                            padding-bottom: 10px; /* Espacement entre le texte et la bordure */
+                            margin-bottom: 20px; /* Espacement en-dessous */
                         }}
                         .no-trailer {{
                             font-size: 18px;
@@ -323,13 +312,13 @@ elif page == pages[1]:
                 f"""
                 <style>
                     .main-actors-title {{
-                        font-size: 28px; 
+                        font-size: 28px; /* Taille plus grande pour le header */
                         font-weight: bold;
                         color: #4CAF50; /* Couleur verte */
-                        margin-top: 20px; 
-                        border-bottom: 3px solid #4CAF50; 
-                        padding-bottom: 10px; 
-                        margin-bottom: 20px; 
+                        margin-top: 20px; /* Espacement au-dessus */
+                        border-bottom: 3px solid #4CAF50; /* Soulignement épais */
+                        padding-bottom: 10px; /* Espacement entre le texte et la bordure */
+                        margin-bottom: 20px; /* Espacement en-dessous */
                     }}
                 </style>
                 <div class="main-actors-title">🎭 Acteurs principaux</div>
@@ -363,10 +352,10 @@ elif page == pages[1]:
                     font-size: 28px; /* Taille plus grande que Films associés */
                     font-weight: bold;
                     color: #2196F3; /* Couleur bleue */
-                    margin-top: 20px; 
-                    border-bottom: 3px solid #2196F3; 
-                    padding-bottom: 10px; 
-                    margin-bottom: 20px; 
+                    margin-top: 20px; /* Espacement au-dessus */
+                    border-bottom: 3px solid #2196F3; /* Soulignement épais */
+                    padding-bottom: 10px; /* Espacement entre le texte et la bordure */
+                    margin-bottom: 20px; /* Espacement en-dessous */
                 }}
             </style>
             <div class="recommendations-title">🔍 Recommandations associées :</div>
@@ -395,25 +384,16 @@ elif page == pages[1]:
         cv = CountVectorizer(stop_words="english")
         cv_matrix = cv.fit_transform(df["overview"])
         knn_model = NearestNeighbors(
-            metric="cosine", algorithm="auto", n_jobs=-1, n_neighbors=4
+            metric="cosine", algorithm="brute", n_jobs=-1, n_neighbors=4
         ).fit(cv_matrix)
 
         _, indices = knn_model.kneighbors(cv_matrix[index_imdb].reshape(1, -1))
-        
+
         # Exclu le film lui-même des voisins
-        filtered_indices = [i for i in indices[0] if i != index_imdb] 
+        filtered_indices = [i for i in indices[0] if i != index_imdb]
 
         # Retourner les voisins et leurs informations
         neighbors_df = df.iloc[filtered_indices]
-        
-        #afficher les 10 mots les plus significatifs par rapport au titre selectionné
-        # feature_names = cv.get_feature_names_out()
-        # tfidf_matrix = cv_matrix.toarray() 
-        # for idx in filtered_indices:
-        #     tfidf_scores = tfidf_matrix[idx]
-        #     sorted_indices = tfidf_scores.argsort()[::-1]
-        #     top_words = [feature_names[i] for i in sorted_indices[:10]]  
-        #     print(f"Top words for movie {df.iloc[idx]['title']}: {', '.join(top_words)}")
 
         for _, row in neighbors_df.iterrows():
             tmdb = get_tmdb_data(row["imdb_id"])
@@ -423,7 +403,7 @@ elif page == pages[1]:
                     f"""
                     <div class="movie-container">
                         <div style="display: flex; align-items: center;">
-                            <img src="https://image.tmdb.org/t/p/w500/{tmdb.get('poster_path', None)}" alt="Poster" style="width: 150px; margin-right: 20px;" class="poster">
+                            <img src="{row['poster_path']}" alt="Poster" style="width: 150px; margin-right: 20px;" class="poster">
                             <div>
                                 <h3>{row['title']} <span style='color:gray; font-style:italic;'> ({row['year']})</span></h3>
                                 <div style='color:gray; font-style:italic;'>{get_tmdb_tagline(row['imdb_id'])}</div>
