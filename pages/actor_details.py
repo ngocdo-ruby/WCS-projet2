@@ -2,6 +2,25 @@ import streamlit as st
 import requests
 from datetime import datetime
 
+# image de fond
+image_url = "https://img.pikbest.com/backgrounds/20220119/film-festival-black-style-background_6234454.jpg!w700wp"
+
+# CSS de l'image de fond
+st.markdown(
+    f"""
+    <style>
+    .stApp {{
+        background-image: url({image_url});
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 def actor_details():
     API_KEY = "60c5ca9b75de2d2e768380e9a5bfd88c"
     BASE_URL = "https://api.themoviedb.org/3"
@@ -134,25 +153,26 @@ def actor_details():
                 .full_wrapper {
                     background-color: #e8f5e9;
                     display: block;
+                    margin-top: 50px;
                     padding: 15px;
                     border-radius: 8px;
                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 }
                 .reseaux {
+                    font-size: 18px;
                     margin-bottom: 10px;
                     text-decoration: none;
                     color: #3b5998;
-                    font-size: 16px;
                 }
                 h3 {
-                    font-size: 18px;
+                    font-size: 20px;
                     margin-bottom: 10px;
-                    color: #333;
+                    color: #000;
                 }
                 .infos_perso p {
+                    font-size: 18px;
                     margin: 5px 0;
-                    color: #555;
-                    font-size: 14px;
+                    color: #222;
                 }
             </style>
         """
