@@ -4,7 +4,7 @@ matplotlib
 seaborn
 pandas
 plotly.express
-st_aggrid
 scikit_learn
-st_keyup
 requests
+streamlit-aggrid
+streamlit-keyup
