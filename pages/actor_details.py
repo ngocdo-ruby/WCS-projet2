@@ -3,6 +3,15 @@ import requests
 from datetime import datetime
 from kpi import set_background
 
+hide_sidebar_style = """
+        <style>
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        </style>
+    """
+st.markdown(hide_sidebar_style, unsafe_allow_html=True)
+
 # # image de fond
 # image_url = "https://img.pikbest.com/backgrounds/20220119/film-festival-black-style-background_6234454.jpg!w700wp"
 

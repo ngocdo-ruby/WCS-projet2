@@ -32,6 +32,14 @@ page = st.sidebar.radio(
 # Met à jour la session_state pour la page sélectionnée
 st.session_state.page = page
 
+# Initialisation de movie_id si nécessaire
+if "movie_id" not in st.session_state:
+    st.session_state.movie_id = None
+
+# charge le film en mémoire (cas specifique du clique sur recommandation)
+if st.session_state.movie_id:
+    page = pages[1]
+
 if page == pages[0]:
     # Fonction pour afficher des KPI cards
     def display_kpi(df):
@@ -135,7 +143,7 @@ if page == pages[0]:
 elif page == pages[1]:
     st.header("Application de recommandations")
     
-    # cahche la sidebar
+    # cache la sidebar
     hide_sidebar_style = """
         <style>
         [data-testid="stSidebar"] {
@@ -289,7 +297,7 @@ elif page == pages[1]:
                     <div style="display: flex; align-items: center;">
                         <img src="https://image.tmdb.org/t/p/w500/{tmdb.get('poster_path', None)}" alt="Poster" style="width: 300px; margin-right: 20px;" class="poster">
                         <div>
-                            <h2>{selected_row['title']}<span style='color:gray; font-style:italic;'> ({selected_row['year']})</span></h2>
+                            <h2>{selected_row['title']}<span style='color:#4f996a; font-style:italic;'> ({selected_row['year']})</span></h2>
                             <div style='color:#ffa500c9; font-style:italic;'>{get_tmdb_tagline(tmdb['id'])}</div>
                             <div class="genre">Genres: {', '.join(tmdb.get('genre_names', []))}</div> 
                             <div class="rating">⭐ {selected_row['averageRating']}/10</div><br>
@@ -448,18 +456,36 @@ elif page == pages[1]:
         #     sorted_indices = tfidf_scores.argsort()[::-1]
         #     top_words = [feature_names[i] for i in sorted_indices[:10]]  
         #     print(f"Top words for movie {df.iloc[idx]['title']}: {', '.join(top_words)}")
+        def stateful_button(*args, key=None, **kwargs):
+            if key is None:
+                raise ValueError("Must pass key")
 
+            # Si la clé n'existe pas dans session_state, on l'initie
+            if key not in st.session_state:
+                st.session_state[key] = False
+
+            # Si le bouton est cliqué, on inverse l'état
+            if st.button(*args, **kwargs):
+                st.session_state[key] = not st.session_state[key]
+
+            return st.session_state[key]
+    
         for _, row in neighbors_df.iterrows():
             tmdb = get_tmdb_data(row["imdb_id"])
             tag = get_tmdb_tagline(row["imdb_id"])
             with st.container():
+                # Affichage du contenu avec st.markdown
                 st.markdown(
                     f"""
                     <div class="movie-container">
                         <div style="display: flex; align-items: center;">
                             <img src="https://image.tmdb.org/t/p/w500/{tmdb.get('poster_path', None)}" alt="Poster" style="width: 150px; margin-right: 20px;" class="poster">
                             <div>
-                                <h3>{row['title']} <span style='color:gray; font-style:italic;'> ({row['year']})</span></h3>
+                                <h3>
+                                    <a href="switch?movie_id={row['imdb_id']}" style="text-decoration: none; color: #FAFAFA;" target="_self">
+                                        {row['title']} <span style='color:#4f996a; font-style:italic;'> ({row['year']})</span>
+                                    </a>
+                                </h3>
                                 <div style='color:#ffa500c9; font-style:italic;'>{get_tmdb_tagline(row['imdb_id'])}</div>
                                 <div class="genre">Genres: {', '.join(tmdb.get('genre_names', []))}</div> 
                                 <div class="rating">⭐ {row['averageRating']}/10</div>
@@ -467,7 +493,7 @@ elif page == pages[1]:
                             </div>
                         </div>
                     </div>
-                """,
+                    """,
                     unsafe_allow_html=True,
                 )
             st.write("")
@@ -529,7 +555,7 @@ elif page == pages[1]:
                 # Affichage des informations détaillées du film
                 display_movie_info(selected_row, tmdb)
 
-    # Si un film est déjà sélectionné (par exemple après une recherche précédente)
+        # Si un film est déjà sélectionné (par exemple après une recherche précédente)
     elif st.session_state.movie_id:
         # Récupération des données TMDb pour le film sélectionné
         tmdb = get_tmdb_data(st.session_state.movie_id)
