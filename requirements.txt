@@ -9,4 +9,4 @@ requests
 streamlit-aggrid
 streamlit-keyup
 datetime
-base64
+pybase64
