@@ -394,9 +394,9 @@ elif page == pages[1]:
             f"""
             <style>
                 .recommendations-title {{
-                    font-size: 28px; /* Taille plus grande que Films associés */
+                    font-size: 28px; 
                     font-weight: bold;
-                    color: #2196F3; /* Couleur bleue */
+                    color: #2196F3; 
                     margin-top: 20px; 
                     border-bottom: 3px solid #2196F3; 
                     padding-bottom: 10px; 
@@ -460,7 +460,7 @@ elif page == pages[1]:
                             <img src="https://image.tmdb.org/t/p/w500/{tmdb.get('poster_path', None)}" alt="Poster" style="width: 150px; margin-right: 20px;" class="poster">
                             <div>
                                 <h3>{row['title']} <span style='color:gray; font-style:italic;'> ({row['year']})</span></h3>
-                                <div style='color:gray; font-style:italic;'>{get_tmdb_tagline(row['imdb_id'])}</div>
+                                <div style='color:#ffa500c9; font-style:italic;'>{get_tmdb_tagline(row['imdb_id'])}</div>
                                 <div class="genre">Genres: {', '.join(tmdb.get('genre_names', []))}</div> 
                                 <div class="rating">⭐ {row['averageRating']}/10</div>
                                 <div class="description">{tmdb.get('overview', None)}</div>
