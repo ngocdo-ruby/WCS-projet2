@@ -290,7 +290,7 @@ elif page == pages[1]:
                         <img src="https://image.tmdb.org/t/p/w500/{tmdb.get('poster_path', None)}" alt="Poster" style="width: 300px; margin-right: 20px;" class="poster">
                         <div>
                             <h2>{selected_row['title']}<span style='color:gray; font-style:italic;'> ({selected_row['year']})</span></h2>
-                            <div style='color:gray; font-style:italic;'>{get_tmdb_tagline(tmdb['id'])}</div>
+                            <div style='color:#ffa500c9; font-style:italic;'>{get_tmdb_tagline(tmdb['id'])}</div>
                             <div class="genre">Genres: {', '.join(tmdb.get('genre_names', []))}</div> 
                             <div class="rating">⭐ {selected_row['averageRating']}/10</div><br>
                             <div class="description">{tmdb.get('overview', None)}</div>
@@ -341,7 +341,7 @@ elif page == pages[1]:
                         }}
                         .no-trailer {{
                             font-size: 18px;
-                            color: #888888; /* Couleur grise pour le message d'absence */
+                            color: #888888; 
                             margin-top: 10px;
                         }}
                     </style>
@@ -359,7 +359,7 @@ elif page == pages[1]:
                     .main-actors-title {{
                         font-size: 28px; 
                         font-weight: bold;
-                        color: #4CAF50; /* Couleur verte */
+                        color: #4CAF50; 
                         margin-top: 20px; 
                         border-bottom: 3px solid #4CAF50; 
                         padding-bottom: 10px; 
