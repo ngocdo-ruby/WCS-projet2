@@ -1,25 +1,28 @@
 import streamlit as st
 import requests
 from datetime import datetime
+from kpi import set_background
 
-# image de fond
-image_url = "https://img.pikbest.com/backgrounds/20220119/film-festival-black-style-background_6234454.jpg!w700wp"
+# # image de fond
+# image_url = "https://img.pikbest.com/backgrounds/20220119/film-festival-black-style-background_6234454.jpg!w700wp"
 
-# CSS de l'image de fond
-st.markdown(
-    f"""
-    <style>
-    .stApp {{
-        background-image: url({image_url});
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 100vh;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# # CSS de l'image de fond
+# st.markdown(
+#     f"""
+#     <style>
+#     .stApp {{
+#         background-image: url({image_url});
+#         background-size: cover;
+#         background-position: center;
+#         background-repeat: no-repeat;
+#         height: 100vh;
+#     }}
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
+
+set_background('./background.jpg')
 
 def actor_details():
     API_KEY = "60c5ca9b75de2d2e768380e9a5bfd88c"

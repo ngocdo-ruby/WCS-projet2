@@ -1,15 +1,11 @@
 import pandas as pd
-import numpy as np
 import streamlit as st
-import seaborn as sns
-import matplotlib.pyplot as plt
 import plotly.express as px
-from st_aggrid import AgGrid
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.neighbors import NearestNeighbors
 from st_keyup import st_keyup
 import requests
+import base64
 
 # prend toute la largeur de la page
 st.set_page_config(layout="wide")
@@ -37,8 +33,6 @@ page = st.sidebar.radio(
 st.session_state.page = page
 
 if page == pages[0]:
-    st.header("Dashboard")
-
     # Fonction pour afficher des KPI cards
     def display_kpi(df):
         col1, col2, col3, col4, col5 = st.columns(5)
@@ -140,7 +134,61 @@ if page == pages[0]:
     
 elif page == pages[1]:
     st.header("Application de recommandations")
+<<<<<<< Updated upstream
+=======
+    
+    # cahche la sidebar
+    hide_sidebar_style = """
+        <style>
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        </style>
+    """
+    st.markdown(hide_sidebar_style, unsafe_allow_html=True)
+    
+    # # image de fond par URL
+    # image_url = "https://cdn.wallpapersafari.com/30/66/wmMuPD.jpg"
+>>>>>>> Stashed changes
 
+    # # CSS de l'image de fond
+    # st.markdown(
+    #     f"""
+    #     <style>
+    #     .stApp {{
+    #         background-image: url({image_url});
+    #         background-size: cover;
+    #         background-position: center;
+    #         background-repeat: no-repeat;
+    #         height: 100vh;
+    #     }}
+        
+    #     </style>
+    #     """,
+    #     unsafe_allow_html=True
+    # )  
+
+    #image de fond avec un fichier local
+    def get_base64(bin_file):
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+
+
+    def set_background(png_file):
+        bin_str = get_base64(png_file)
+        page_bg_img = '''
+        <style>
+        .stApp {
+        background-image: url("data:image/png;base64,%s");
+        background-size: cover;
+        }
+        </style>
+        ''' % bin_str
+        st.markdown(page_bg_img, unsafe_allow_html=True)
+        
+    set_background('./background.jpg')
+    
     # Fonction pour rechercher des films
     def search_movies(query, df):
         if not query:
@@ -365,7 +413,7 @@ elif page == pages[1]:
 
         neighbors = find_neighbors_title(selected_row["title"], df)
         st.write("")
-        st.dataframe(neighbors)  # Affichage du dataframe correspondant
+        # st.dataframe(neighbors)  # Affichage du dataframe correspondant
 
     # Fonction pour afficher les plus proches voisins
     def find_neighbors_title(title, df):
