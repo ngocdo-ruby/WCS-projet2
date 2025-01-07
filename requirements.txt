@@ -8,5 +8,5 @@ scikit_learn
 requests
 streamlit-aggrid
 streamlit-keyup
-kpi
 datetime
+base64
