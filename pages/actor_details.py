@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
 from datetime import datetime
-from kpi import set_background
+# from kpi import set_background
+import base64
 
 hide_sidebar_style = """
         <style>
@@ -30,7 +31,24 @@ st.markdown(hide_sidebar_style, unsafe_allow_html=True)
 #     """,
 #     unsafe_allow_html=True
 # )
+def get_base64(bin_file):
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
 
+
+def set_background(png_file):
+    bin_str = get_base64(png_file)
+    page_bg_img = '''
+    <style>
+    .stApp {
+    background-image: url("data:image/png;base64,%s");
+    background-size: cover;
+    }
+    </style>
+    ''' % bin_str
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+        
 set_background('./background.jpg')
 
 def actor_details():
